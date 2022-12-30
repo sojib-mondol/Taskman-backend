@@ -23,14 +23,23 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         const tasks = client.db("TaskMan").collection("MyTasks");
+        // gettung 
+        app.get("/tasks/:email", async (req, res) => {
+            const email = req.params.email;
+            const query = {user_email:email};
+            const result = await tasks.find(query).toArray();
+            const taskNotComplete = result.filter(n => !n.completed);
+            res.send(taskNotComplete);
+        });
 
-       
-       app.get("/tasks/:email", async (req, res) => {
-        const email = req.params.email;
-        const query = {user_email:email};
-        const result = await tasks.find(query).toArray();
-        res.send(result);
-    });
+        // gettung 
+        app.get("/tasksComplete/:email", async (req, res) => {
+            const email = req.params.email;
+            const query = {user_email:email};
+            const result = await tasks.find(query).toArray();
+            const taskComplete = result.filter(n => n.completed);
+            res.send(taskComplete);
+        });
 
         app.post("/tasks", async (req, res) => {
             const task = req.body;
@@ -38,6 +47,18 @@ async function run() {
             const result = await tasks.insertOne(task);
             res.send(result);
         });
+
+        //update complete
+        app.put('/tasks/:id', async (req, res) => {
+            const id = req.params.id
+            const complete = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updatedDoc = {
+                $set: complete
+            }
+            const result = await tasks.updateOne(filter, updatedDoc);
+            res.send(result);
+        })
 
         app.delete("/tasks/:id", async (req, res) => {
             console.log(req.params);
