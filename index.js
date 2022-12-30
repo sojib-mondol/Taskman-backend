@@ -24,12 +24,13 @@ async function run() {
     try {
         const tasks = client.db("TaskMan").collection("MyTasks");
 
-        // gettung crt tv data
-        app.get("/tasks", async (req, res) => {
-            const query = {};
-            const result = await tasks.find(query).toArray();
-            res.send(result);
-        });
+       
+       app.get("/tasks/:email", async (req, res) => {
+        const email = req.params.email;
+        const query = {user_email:email};
+        const result = await tasks.find(query).toArray();
+        res.send(result);
+    });
 
         app.post("/tasks", async (req, res) => {
             const task = req.body;
